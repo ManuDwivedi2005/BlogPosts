@@ -33,10 +33,7 @@ app.use(methodOverride('_method'));
 
 const { Pool } = pg;
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false
-    }
+    connectionString: process.env.DATABASE_URL
 });
 
 console.log("✅ Connected to PostgreSQL Database via Supabase");
