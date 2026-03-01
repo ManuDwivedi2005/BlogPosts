@@ -38,7 +38,7 @@ const pool = new Pool({
     family: 4
 });
 
-console.log("✅ Connected to PostgreSQL Database via Supabase");
+console.log("✅ V2: Attempting to connect to PostgreSQL via Supabase (IPv4 forced)");
 
 /* =========================
    Routes
