@@ -1,0 +1,21 @@
+{
+  "name": "thread-app",
+  "version": "1.0.0",
+  "description": "A simple Express server.",
+  "main": "routes/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node routes/index.js",
+    "dev": "nodemon routes/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "ejs": "^4.0.1",
+    "express": "^4.19.2",
+    "method-override": "^3.0.0",
+    "pg": "^8.19.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
