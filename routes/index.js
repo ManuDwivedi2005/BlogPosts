@@ -33,7 +33,9 @@ app.use(methodOverride('_method'));
 
 const { Pool } = pg;
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL
+    connectionString: process.env.DATABASE_URL,
+    // Force IPv4, as Render can have issues with IPv6 routing
+    family: 4
 });
 
 console.log("✅ Connected to PostgreSQL Database via Supabase");
