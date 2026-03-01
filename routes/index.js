@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import methodOverride from 'method-override';
 import dotenv from 'dotenv';
 import pg from 'pg';
+import rateLimit from 'express-rate-limit';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -41,6 +42,19 @@ const pool = new Pool({
 console.log("✅ V2: Attempting to connect to PostgreSQL via Supabase (IPv4 forced)");
 
 /* =========================
+   Security Middleware
+========================= */
+
+// Rate limiter to prevent brute-force/spam attacks
+const apiLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 20, // Limit each IP to 20 create/update/delete requests per window
+	message: 'Too many requests from this IP, please try again after 15 minutes',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+/* =========================
    Routes
 ========================= */
 
@@ -61,8 +75,14 @@ app.get('/posts/new', (req, res) => {
 });
 
 // Create a new post in the database
-app.post('/posts', async (req, res) => {
+app.post('/posts', apiLimiter, async (req, res) => {
     const { title, content, author } = req.body;
+
+    // Basic server-side validation
+    if (!title || !content || title.trim() === '' || content.trim() === '') {
+        return res.status(400).render('error', { message: 'Title and content cannot be empty.' });
+    }
+
     try {
         const sql = 'INSERT INTO posts (title, content, author) VALUES ($1, $2, $3)';
         await pool.query(sql, [title, content, author]);
@@ -104,7 +124,7 @@ app.get('/posts/:id/edit', async(req,res)=>{
 )
 
 // Update posts
-app.patch('/posts/:id', async(req,res)=>{
+app.patch('/posts/:id', apiLimiter, async(req,res)=>{
     const postId = req.params.id;
     const {title, content} = req.body;
     try{
@@ -119,7 +139,7 @@ app.patch('/posts/:id', async(req,res)=>{
 })
 
 // Delete posts
-app.delete('/posts/:id', async(req,res)=>{
+app.delete('/posts/:id', apiLimiter, async(req,res)=>{
     const postId = req.params.id;
     try{
         const sql = 'DELETE FROM posts WHERE id = $1';
